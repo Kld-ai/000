@@ -1,76 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>Teachable Machine - صورة من الجهاز</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f2f4f8;
-      text-align: center;
-      padding: 40px;
-    }
-
-    input[type="file"] {
-      margin-top: 20px;
-    }
-
-    img {
-      margin-top: 20px;
-      max-width: 300px;
-      border: 2px solid #ccc;
-      border-radius: 10px;
-    }
-
-    #label-container {
-      margin-top: 20px;
-      font-size: 18px;
-      font-weight: bold;
-    }
-  </style>
+  <title>تصنيف السيارة</title>
 </head>
 <body>
-  <h1>📷 Teachable Machine Image Classifier</h1>
-  <input type="file" accept="image/*" onchange="handleUpload(event)">
-  <div><img id="uploaded-image" /></div>
-  <div id="label-container"></div>
+  <h2>🚗 اختر صورة سيارة</h2>
+  <input type="file" id="imageInput" accept="image/*">
+  <br><br>
+  <img id="preview" width="224" height="224" style="display:none;">
+  <h3 id="result">النتيجة: </h3>
 
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest"></script>
+  <!-- تحميل مكتبة Teachable Machine -->
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.4-alpha2/dist/teachablemachine-image.min.js"></script>
   <script>
-const URL = "./";
-
+    const URL = "./"; // إذا كانت الملفات في نفس المجلد
 
     let model, labelContainer, maxPredictions;
 
-    async function loadModel() {
+    async function init() {
       const modelURL = URL + "model.json";
       const metadataURL = URL + "metadata.json";
       model = await tmImage.load(modelURL, metadataURL);
       maxPredictions = model.getTotalClasses();
-      labelContainer = document.getElementById("label-container");
     }
 
-    async function handleUpload(event) {
+    // تحميل النموذج أولاً
+    init();
+
+    document.getElementById("imageInput").addEventListener("change", async function (event) {
       const file = event.target.files[0];
-      if (!file) return;
-
-      const img = document.getElementById("uploaded-image");
-      img.src = URL.createObjectURL(file);
-      img.onload = async () => {
-        const prediction = await model.predict(img);
-        labelContainer.innerHTML = "";
-        for (let i = 0; i < maxPredictions; i++) {
-          const classPrediction = prediction[i].className + ": " +
-                                  (prediction[i].probability * 100).toFixed(1) + "%";
-          const div = document.createElement("div");
-          div.innerText = classPrediction;
-          labelContainer.appendChild(div);
-        }
-      };
-    }
-
-    loadModel();
+      if (file) {
+        const img = document.getElementById("preview");
+        img.src = URL.createObjectURL(file);
+        img.onload = async () => {
+          img.style.display = "block";
+          const prediction = await model.predict(img);
+          prediction.sort((a, b) => b.probability - a.probability);
+          const result = document.getElementById("result");
+          result.innerText = `🚘 النوع: ${prediction[0].className} بنسبة ${(prediction[0].probability * 100).toFixed(2)}%`;
+        };
+      }
+    });
   </script>
 </body>
 </html>
