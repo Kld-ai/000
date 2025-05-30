@@ -1,17 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>تصنيف السيارات بالصور</title>
+  <title>تصنيف السيارة من الصورة 🚗</title>
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
+      direction: rtl;
       text-align: center;
       padding: 20px;
+      background-color: #f5f5f5;
     }
-    #webcam-container, #label-container {
-      margin-top: 20px;
+    h1 {
+      color: #333;
     }
     input[type="file"] {
       margin-top: 20px;
@@ -19,31 +21,34 @@
     #preview {
       margin-top: 20px;
       max-width: 300px;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+    }
+    #result {
+      margin-top: 30px;
+      font-size: 24px;
+      color: #222;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
   <h1>🚗 تصنيف نوع السيارة من الصورة</h1>
   <input type="file" id="imageUpload" accept="image/*" />
-  <div id="webcam-container"></div>
-  <img id="preview" src="" alt="Preview Image" />
-  <div id="label-container"></div>
+  <br>
+  <img id="preview" src="" alt="صورة المعاينة" />
+  <div id="result"></div>
 
   <script type="text/javascript">
-    let model, labelContainer, maxPredictions;
+    let model, maxPredictions;
 
     async function init() {
-      const URL = "./"; // Assuming model files are in the same folder
+      const URL = "./"; // يفترض أن الملفات model.json و metadata.json و weights.bin هنا
       const modelURL = URL + "model.json";
       const metadataURL = URL + "metadata.json";
 
       model = await tmImage.load(modelURL, metadataURL);
       maxPredictions = model.getTotalClasses();
-      labelContainer = document.getElementById("label-container");
-      labelContainer.innerHTML = "";
-      for (let i = 0; i < maxPredictions; i++) {
-        labelContainer.appendChild(document.createElement("div"));
-      }
     }
 
     document.getElementById("imageUpload").addEventListener("change", async (event) => {
@@ -54,13 +59,10 @@
       img.src = URL.createObjectURL(file);
       img.onload = async () => {
         const prediction = await model.predict(img, false);
-        prediction.sort((a, b) => b.probability - a.probability);
-        labelContainer.innerHTML = "";
-        prediction.forEach(pred => {
-          const label = document.createElement('div');
-          label.innerText = `${pred.className}: ${(pred.probability * 100).toFixed(2)}%`;
-          labelContainer.appendChild(label);
-        });
+        prediction.sort((a, b) => b.probability - a.probability); // نرتبهم تنازلياً
+
+        const bestMatch = prediction[0];
+        document.getElementById('result').innerHTML = `🚘 التصنيف المتوقع: <span style="color:blue;">${bestMatch.className}</span> <br> 🔥 الثقة: ${(bestMatch.probability * 100).toFixed(2)}%`;
       };
     });
 
