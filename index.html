@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>تصنيف السيارات بالصور</title>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    #webcam-container, #label-container {
+      margin-top: 20px;
+    }
+    input[type="file"] {
+      margin-top: 20px;
+    }
+    #preview {
+      margin-top: 20px;
+      max-width: 300px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🚗 تصنيف نوع السيارة من الصورة</h1>
+  <input type="file" id="imageUpload" accept="image/*" />
+  <div id="webcam-container"></div>
+  <img id="preview" src="" alt="Preview Image" />
+  <div id="label-container"></div>
+
+  <script type="text/javascript">
+    let model, labelContainer, maxPredictions;
+
+    async function init() {
+      const URL = "./"; // Assuming model files are in the same folder
+      const modelURL = URL + "model.json";
+      const metadataURL = URL + "metadata.json";
+
+      model = await tmImage.load(modelURL, metadataURL);
+      maxPredictions = model.getTotalClasses();
+      labelContainer = document.getElementById("label-container");
+      labelContainer.innerHTML = "";
+      for (let i = 0; i < maxPredictions; i++) {
+        labelContainer.appendChild(document.createElement("div"));
+      }
+    }
+
+    document.getElementById("imageUpload").addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const img = document.getElementById('preview');
+      img.src = URL.createObjectURL(file);
+      img.onload = async () => {
+        const prediction = await model.predict(img, false);
+        prediction.sort((a, b) => b.probability - a.probability);
+        labelContainer.innerHTML = "";
+        prediction.forEach(pred => {
+          const label = document.createElement('div');
+          label.innerText = `${pred.className}: ${(pred.probability * 100).toFixed(2)}%`;
+          labelContainer.appendChild(label);
+        });
+      };
+    });
+
+    window.addEventListener('load', init);
+  </script>
+</body>
+</html>
