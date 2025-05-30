@@ -59,9 +59,9 @@
     let model, maxPredictions;
 
     async function init() {
-      const URL = "./"; 
-      const modelURL = URL + "model.json";
-      const metadataURL = URL + "metadata.json";
+     const URL = "https://<username>.github.io/<repo>/"; 
+const modelURL = URL + "model.json";
+const metadataURL = URL + "metadata.json";
 
       try {
         model = await tmImage.load(modelURL, metadataURL);
