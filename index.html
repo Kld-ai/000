@@ -1,67 +1,10 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-  <meta charset="UTF-8">
-  <title>تصنيف السيارة من الصورة 🚗</title>
-  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      direction: rtl;
-      text-align: center;
-      padding: 20px;
-      background-color: #f5f5f5;
-    }
-    h1 {
-      color: #333;
-    }
-    input[type="file"] {
-      margin-top: 20px;
-    }
-    #preview {
-      margin-top: 20px;
-      max-width: 300px;
-      border: 2px solid #ccc;
-      border-radius: 10px;
-    }
-    #confirmButton {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 18px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    #confirmButton:disabled {
-      background-color: grey;
-      cursor: not-allowed;
-    }
-    #result {
-      margin-top: 30px;
-      font-size: 24px;
-      color: #222;
-      font-weight: bold;
-    }
-  </style>
-</head>
-<body>
-  <h1>🚗 تصنيف نوع السيارة من الصورة</h1>
-  <input type="file" id="imageUpload" accept="image/*" />
-  <br>
-  <img id="preview" src="" alt="صورة المعاينة" style="display:none;" />
-  <br>
-  <button id="confirmButton" disabled>تأكيد</button>
-  <div id="result"></div>
-
-  <script type="text/javascript">
+<script type="text/javascript">
     let model, maxPredictions;
 
     async function init() {
-     const URL = "https://<username>.github.io/<repo>/"; 
-const modelURL = URL + "model.json";
-const metadataURL = URL + "metadata.json";
+      const URL = "https://kld-ai.github.io/000/";  // هذا رابط ملفات النموذج في GitHub Pages
+      const modelURL = URL + "model.json";
+      const metadataURL = URL + "metadata.json";
 
       try {
         model = await tmImage.load(modelURL, metadataURL);
@@ -94,13 +37,12 @@ const metadataURL = URL + "metadata.json";
         const prediction = await model.predict(preview, false);
         prediction.sort((a, b) => b.probability - a.probability);
         const bestMatch = prediction[0];
-        document.getElementById('result').innerHTML = `🚘 التصنيف المتوقع: <span style="color:blue;">${bestMatch.className}</span> <br> 🔥 الثقة: ${(bestMatch.probability * 100).toFixed(2)}%`;
+        document.getElementById('result').innerHTML = 
+          `🚘 التصنيف المتوقع: <span style="color:blue;">${bestMatch.className}</span> <br> 🔥 الثقة: ${(bestMatch.probability * 100).toFixed(2)}%`;
       } catch (error) {
         console.error("❌ خطأ أثناء التنبؤ:", error);
       }
     });
 
     window.addEventListener('load', init);
-  </script>
-</body>
-</html>
+</script>
